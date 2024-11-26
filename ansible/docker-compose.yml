@@ -1,5 +1,5 @@
 services:
-  wbeml:
+  grp4ihm:
     image: virtus/david:ad_project_ihm
     container_name: david-ad-project-ihm
     ports:
