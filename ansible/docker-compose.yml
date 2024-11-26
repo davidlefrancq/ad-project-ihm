@@ -1,0 +1,7 @@
+services:
+  wbeml:
+    image: virtus/david:ad_project_ihm
+    container_name: david-ad-project-ihm
+    ports:
+      - "8294:80"
+    restart: always

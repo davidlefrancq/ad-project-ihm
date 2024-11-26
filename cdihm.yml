@@ -1,0 +1,37 @@
+- name: "AD Project IHM Deployment"
+  hosts: docker
+  tasks:
+    - name: "Signin Dockerhub"
+      docker_login:
+        username: virtus
+        password: bes@83HUB
+
+    - name: "Stop existing container"
+      docker_compose:
+        project_src: "/home/ubuntu/projetihm/grp4/"
+        state: absent
+      ignore_errors: yes
+
+    - name: "Remove local image"
+      docker_image:
+        state: absent
+        name: "virtus/david:ad_project_ihm"
+
+    - name: "Pull Dockerhub images"
+      docker_image:
+        name: "virtus/david:ad_project_ihm"
+        source: pull
+
+    - name: "Copy docker-compose.yml"
+      copy:
+        src: "ansible/docker-compose.yml"
+        dest: "/home/ubuntu/projetihm/grp4/"
+        owner: "ubuntu"
+        group: "ubuntu"
+
+    - name: "Up Container"
+      docker_compose:
+        project_src: "/home/ubuntu/projetihm/grp4/"
+        state: present
+        pull: yes
+        recreate: always
