@@ -46,7 +46,8 @@ export default defineComponent({
       error.value = null
 
       try {
-        const response = await fetch('http://57.128.24.53:8394')
+        const url = import.meta.env.VITE_API_URL
+        const response = await fetch(url)
 
         if (!response.ok) {
           throw new Error('Erreur lors de la communication avec l\'API')
