@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Title from './components/ADProjectTitle.vue'
-import Prediction from './components/Prediction.vue'
+import Prediction from './components/CarPrediction.vue'
 </script>
 
 <template>
