@@ -28,6 +28,10 @@ const goToPreviousStep = () => {
   }
 }
 
+const goToStep = (index: number) => {
+  currentStep.value = index
+}
+
 const emit = defineEmits(['update:step'])
 
 watch(currentStep, (newStep) => {
@@ -44,14 +48,18 @@ watch(currentStep, (newStep) => {
              :class="[
                index === steps.length - 1 ? 'flex-initial' : 'flex-1'
              ]">
-          <div :class="[
-            'w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium shrink-0',
-            index === currentStep ? 'bg-emerald-500 text-white' :
-            index < currentStep ? 'bg-emerald-500/20 text-emerald-500' :
-            'bg-zinc-800 text-zinc-500'
-          ]">
+          <button
+            @click="goToStep(index)"
+            :class="[
+              'w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium shrink-0',
+              'transition-all duration-200 hover:scale-110',
+              index === currentStep ? 'bg-emerald-500 text-white' :
+              index < currentStep ? 'bg-emerald-500/20 text-emerald-500' :
+              'bg-zinc-800 text-zinc-500 hover:bg-zinc-700 hover:text-zinc-300'
+            ]"
+          >
             {{ step.icon }}
-          </div>
+          </button>
           <div v-if="index < steps.length - 1"
                :class="[
                  'h-1 mx-2 flex-1 rounded',

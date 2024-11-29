@@ -2,6 +2,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { CarIcon, SearchIcon, CheckIcon } from 'lucide-vue-next'
 import CarFormStepper from './CarFormStepper.vue'
+import CarColorPicker from './CarColorPicker.vue'
 
 const API_URL = `${import.meta.env.VITE_API_URL}/predict`
 
@@ -48,6 +49,7 @@ const selectedDoors = ref<number | null>(null)
 const mileage = ref('')
 const year = ref('')
 const horsepower = ref('')
+const isMetallicColor = ref(false)
 const estimatedPrice = ref<number | null>(null)
 const isEstimating = ref(false)
 const showEstimation = ref(false)
@@ -73,7 +75,7 @@ const estimatePrice = async () => {
     carmodel: selectedModel.value?.trim().replace(/[\r\n]+/g, ''),
     year: year.value,
     color: selectedColor.value,
-    metallic_color: false,
+    metallic_color: isMetallicColor.value,
     energy: selectedEnergy.value,
     gearbox: selectedTransmission.value ? 'mécanique' : 'automatique',
     first_hand: selectedFirstHand.value,
@@ -323,23 +325,14 @@ onMounted(() => {
 
           <div v-if="selectedModel" class="space-y-8">
           <CarFormStepper v-if="selectedModel">
-            <!-- Couleur (visible si voiture sélectionnée) -->
+            <!-- Couleur et option métallisé -->
             <template #color>
-            <div class="space-y-2">
-              <div class="flex flex-wrap gap-3">
-                <button v-for="color in colorList"
-                        :key="color.name"
-                        @click="selectColor(color.name)"
-                        :title="color.name"
-                        class="relative w-8 h-8 rounded-full border-2 transition-all duration-200 hover:scale-110 focus:outline-none"
-                        :class="selectedColor === color.name ? 'border-emerald-500 scale-110' : 'border-zinc-600'"
-                        :style="{ backgroundColor: color.hex }">
-                  <CheckIcon v-if="selectedColor === color.name"
-                            class="absolute inset-0 m-auto w-5 h-5"
-                            :class="color.name === 'blanc' ? 'text-black' : 'text-white'" />
-                </button>
-              </div>
-            </div>
+              <CarColorPicker
+                v-model="isMetallicColor"
+                :color-list="colorList"
+                :selected-color="selectedColor"
+                @select:color="selectColor"
+              />
             </template>
 
             <!-- Carburant (visible si couleur sélectionnée) -->
