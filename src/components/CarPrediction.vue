@@ -281,7 +281,7 @@ onMounted(loadCarsData)
               <div class="flex gap-3">
                 <div class="flex-[2] relative">
                   <input v-model="mileage"
-                        @input="mileage = validateNumber($event.target.value)"
+                        @input="mileage = validateNumber($event?.target?.value)"
                         type="number"
                         min="0"
                         class="w-full h-12 px-4 rounded-xl bg-zinc-800/50 border border-zinc-700 text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500"
@@ -291,7 +291,7 @@ onMounted(loadCarsData)
 
                 <div class="flex-1 relative">
                   <input v-model="horsepower"
-                        @input="horsepower = validateNumber($event.target.value)"
+                        @input="horsepower = validateNumber($event?.target?.value)"
                         type="number"
                         min="0"
                         class="w-full h-12 px-4 rounded-xl bg-zinc-800/50 border border-zinc-700 text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500"
