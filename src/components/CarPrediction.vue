@@ -5,19 +5,6 @@ import CarFormStepper from './CarFormStepper.vue'
 
 const API_URL = `${import.meta.env.VITE_API_URL}/predict`
 
-interface CarData {
-  id: number
-  carmodel: string
-  price: string
-  year: string
-  energy: string
-  gearbox: string
-  color: string
-  doors: string
-  firsthand: string
-  power: string
-}
-
 const colorList = [
   { name: 'noir', hex: '#111111' },
   { name: 'blanc', hex: '#F5F5F5' },
@@ -339,7 +326,6 @@ onMounted(() => {
             <!-- Couleur (visible si voiture sélectionnée) -->
             <template #color>
             <div class="space-y-2">
-              <!-- <h4 class="text-sm font-medium text-zinc-400">Couleur</h4> -->
               <div class="flex flex-wrap gap-3">
                 <button v-for="color in colorList"
                         :key="color.name"
@@ -359,7 +345,6 @@ onMounted(() => {
             <!-- Carburant (visible si couleur sélectionnée) -->
             <template #energy>
             <div class="space-y-2">
-              <!-- <h4 class="text-sm font-medium text-zinc-400">Type de carburant</h4> -->
               <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
                 <button v-for="energy in energyList"
                         :key="energy.name"
@@ -380,7 +365,6 @@ onMounted(() => {
             <!-- Boîte (visible si carburant sélectionné) -->
             <template #transmission>
             <div class="space-y-2">
-              <!-- <h4 class="text-sm font-medium text-zinc-400">Type de boîte</h4> -->
               <div class="flex gap-3">
                 <button @click="selectedTransmission = true"
                         class="flex-1 px-2 py-2 rounded-xl border transition-all duration-200 hover:scale-[1.02] focus:outline-none"
@@ -409,7 +393,6 @@ onMounted(() => {
             <!-- Première main (visible si boîte sélectionnée) -->
             <template #firstHand>
             <div class="space-y-2">
-              <!-- <h4 class="text-sm font-medium text-zinc-400">État du véhicule</h4> -->
               <div class="flex gap-3">
                 <button @click="selectedFirstHand = true"
                         class="flex-1 px-2 py-2 rounded-xl border transition-all duration-200 hover:scale-[1.02] focus:outline-none"
@@ -438,7 +421,6 @@ onMounted(() => {
             <!-- Nombre de portes (visible si première main sélectionnée) -->
             <template #doors>
             <div class="space-y-2">
-              <!-- <h4 class="text-sm font-medium text-zinc-400">Nombre de portes</h4> -->
               <div class="flex gap-3">
                 <button v-for="doors in doorOptions"
                         :key="doors"
