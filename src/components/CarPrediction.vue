@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// @ts-ignore
 import { ref, onMounted, computed } from 'vue'
 import { CarIcon, SearchIcon, CheckIcon } from 'lucide-vue-next'
 import Papa from 'papaparse'
