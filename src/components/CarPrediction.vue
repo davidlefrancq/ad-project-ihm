@@ -145,7 +145,7 @@ const selectModel = (model: string) => {
 const loadModels = async () => {
   try {
     isLoading.value = true
-    const response = await fetch('/src/dataset/models.json')
+    const response = await fetch('/models.json')
     const data = await response.json()
     carModels.value = data
   } catch (e) {
