@@ -1,7 +1,5 @@
 node {
-    environment {
-        DOCKER_IMAGE = 'virtus/david:ad_project_ihm'
-    }
+    def DOCKER_IMAGE = 'virtus/david:ad_project_ihm'
     stage('Git') {
         git branch: 'main', credentialsId: 'GitlabDavid', url: 'https://gitlab.com/DLefrancq/ad_project_ihm'
     }
