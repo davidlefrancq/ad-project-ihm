@@ -7,7 +7,7 @@ node {
         image = docker.build(
             "${DOCKER_IMAGE}",
             "-f Dockerfile .",
-            '--build-arg VITE_API_URL=$VITE_API_URL'
+            "--build-arg VITE_API_URL=$VITE_API_URL"
         )
         sh 'docker images'
     }
