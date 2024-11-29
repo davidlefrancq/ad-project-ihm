@@ -4,11 +4,14 @@ node {
         git branch: 'main', credentialsId: 'GitlabDavid', url: 'https://gitlab.com/DLefrancq/ad_project_ihm'
     }
     stage('Build') {
-        image = docker.build(
-            "${DOCKER_IMAGE}",
-            "-f Dockerfile .",
-            "--build-arg VITE_API_URL=$VITE_API_URL"
-        )
+        withCredentials([string(credentialsId: 'VITE_API_URL', variable: 'VITE_API_URL')]) {
+            sh """
+                docker build \
+                --build-arg VITE_API_URL=${VITE_API_URL} \
+                -t ${DOCKER_IMAGE} \
+                -f Dockerfile .
+            """
+        }
         sh 'docker images'
     }
     stage('Deploy') {
