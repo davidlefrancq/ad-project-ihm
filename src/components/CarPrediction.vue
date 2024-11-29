@@ -161,7 +161,7 @@ onMounted(() => {
     <div class="rounded-xl border border-zinc-800 bg-zinc-900 shadow-lg backdrop-blur-xl">
       <div class="p-6">
         <h3 class="flex items-center gap-2 text-2xl font-medium text-zinc-100 mb-8">
-          <CarIcon class="w-6 h-6 text-emerald-500" />Recherche de voiture
+          <CarIcon class="w-6 h-6 text-emerald-500" />Estimation de prix
         </h3>
 
         <div class="space-y-8">
