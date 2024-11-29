@@ -7,6 +7,10 @@ WORKDIR /app
 # Copie des fichiers source
 COPY . .
 
+# Définition des variables d'environnement
+ARG VITE_API_URL
+ENV VITE_API_URL=$VITE_API_URL
+
 # Installation des dépendances
 RUN npm install
 
