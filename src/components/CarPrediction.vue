@@ -77,8 +77,6 @@ const removeError = (id: number) => {
   errors.value = errors.value.filter(error => error.id !== id)
 }
 
-
-
 const estimatePrice = async () => {
   isEstimating.value = true
   showEstimation.value = false
@@ -119,9 +117,9 @@ const estimatePrice = async () => {
         estimatedPrice.value = data.price
         showEstimation.value = true
       })
-      .catch((error) => console.error('Erreur estimation:', error))
+      .catch((error: Error) => console.error('Erreur estimation:', error))
   } catch (error) {
-    console.error('Erreur estimation:', error)
+    console.error('Erreur estimation:', error as Error)
   } finally {
     isEstimating.value = false
   }
@@ -151,10 +149,10 @@ const loadCarsData = async () => {
       complete: (results) => {
         carsData.value = results.data.filter((car) => car.carmodel) as CarData[]
       },
-      error: (error) => console.error('Erreur lors du parsing CSV:', error)
+      error: (error: Error) => console.error('Erreur lors du parsing CSV:', error)
     })
   } catch (e) {
-    console.error('Erreur lors du chargement du CSV:', e)
+    console.error('Erreur lors du chargement du CSV:', e as Error)
   } finally {
     isLoading.value = false
   }
