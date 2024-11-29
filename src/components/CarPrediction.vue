@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { CarIcon, SearchIcon, CheckIcon } from 'lucide-vue-next'
-import Papa from 'papaparse'
 
 const API_URL = `${import.meta.env.VITE_API_URL}/predict`
 
@@ -49,16 +48,17 @@ interface ErrorNotification {
 }
 
 const isLoading = ref(false)
-const searchQuery = ref('')
+const modelSearch = ref('')
+const carModels = ref<string[]>([])
+const selectedModel = ref<string | null>(null)
 const selectedColor = ref('')
 const selectedEnergy = ref('')
 const selectedTransmission = ref<boolean | null>(null)
 const selectedFirstHand = ref<boolean | null>(null)
-const carsData = ref<CarData[]>([])
 const hasSearched = ref(false)
-const selectedCar = ref<CarData | null>(null)
 const selectedDoors = ref<number | null>(null)
 const mileage = ref('')
+const year = ref('')
 const horsepower = ref('')
 const estimatedPrice = ref<number | null>(null)
 const isEstimating = ref(false)
@@ -82,8 +82,8 @@ const estimatePrice = async () => {
   showEstimation.value = false
 
   const data = {
-    carmodel: selectedCar.value?.carmodel.trim().replace(/[\r\n]+/g, ''),
-    year: selectedCar.value?.year,
+    carmodel: selectedModel.value?.trim().replace(/[\r\n]+/g, ''),
+    year: year.value,
     color: selectedColor.value,
     metallic_color: false,
     energy: selectedEnergy.value,
@@ -97,10 +97,6 @@ const estimatePrice = async () => {
   console.log('Estimation data:', data)
 
   try {
-    // // Simulation API call
-    // await new Promise(resolve => setTimeout(resolve, 1500))
-    // estimatedPrice.value = Math.floor(Math.random() * 30000) + 10000 // À remplacer par votre vrai appel API
-    // showEstimation.value = true
     fetch(API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -130,38 +126,33 @@ const validateNumber = (value: string) => {
   return !isNaN(num) && num >= 0 ? value : ''
 }
 
-const uniqueMatchingCars = computed(() => {
-  if (!searchQuery.value.trim() || isLoading.value) return []
-  const searchTerms = searchQuery.value.toLowerCase().split(' ').filter(term => term.length > 0)
-  const matches = carsData.value.filter(car =>
-    searchTerms.every(term => car.carmodel.toLowerCase().includes(term))
-  )
-  return Array.from(new Map(matches.map(car => [car.carmodel, car])).values())
+const matchingModels = computed(() => {
+  if (!modelSearch.value.trim() || isLoading.value) return []
+  const searchTerms = modelSearch.value.toLowerCase().split(' ').filter(term => term.length > 0)
+  return carModels.value.filter(model =>
+    searchTerms.every(term => model.toLowerCase().includes(term))
+  ).slice(0, 10)
 })
 
-const loadCarsData = async () => {
+// Sélection d'un modèle
+const selectModel = (model: string) => {
+  selectedModel.value = model
+  modelSearch.value = model
+  hasSearched.value = false
+}
+
+// Chargement du fichier JSON
+const loadModels = async () => {
   try {
     isLoading.value = true
-    const response = await fetch('/src/dataset/dataset.csv')
-    const csvText = await response.text()
-    Papa.parse<CarData>(csvText, {
-      header: true,
-      complete: (results) => {
-        carsData.value = results.data.filter((car) => car.carmodel) as CarData[]
-      },
-      error: (error: Error) => console.error('Erreur lors du parsing CSV:', error)
-    })
+    const response = await fetch('/src/dataset/models.json')
+    const data = await response.json()
+    carModels.value = data
   } catch (e) {
-    console.error('Erreur lors du chargement du CSV:', e as Error)
+    console.error('Erreur lors du chargement des modèles:', e)
   } finally {
     isLoading.value = false
   }
-}
-
-const selectCar = (car: CarData) => {
-  selectedCar.value = car
-  searchQuery.value = car.carmodel
-  hasSearched.value = false
 }
 
 const selectColor = (color: string) => {
@@ -172,7 +163,9 @@ const selectEnergy = (energy: string) => {
   selectedEnergy.value = energy === selectedEnergy.value ? '' : energy
 }
 
-onMounted(loadCarsData)
+onMounted(() => {
+  loadModels()
+})
 </script>
 
 <template>
@@ -187,28 +180,28 @@ onMounted(loadCarsData)
           <!-- Recherche -->
           <div class="relative transition-all duration-200 hover:scale-[1.01]">
             <SearchIcon class="absolute left-3 top-3 h-5 w-5 text-zinc-500" />
-            <input v-model="searchQuery"
-                   type="text"
-                   class="w-full h-12 pl-10 pr-4 rounded-xl bg-zinc-800/50 border border-zinc-700 text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all duration-200"
-                   placeholder="Rechercher un modèle..."
-                   @input="hasSearched = true">
+            <input v-model="modelSearch"
+                  type="text"
+                  class="w-full h-12 pl-10 pr-4 rounded-xl bg-zinc-800/50 border border-zinc-700 text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all duration-200"
+                  placeholder="Rechercher un modèle..."
+                  @input="hasSearched = true">
 
             <!-- Résultats de recherche -->
-            <div v-if="hasSearched && uniqueMatchingCars.length > 0"
-                 class="absolute z-10 w-full mt-1 border border-zinc-800 rounded-xl bg-zinc-900/95 backdrop-blur-xl shadow-xl">
+            <div v-if="hasSearched && matchingModels.length > 0"
+                class="absolute z-10 w-full mt-1 border border-zinc-800 rounded-xl bg-zinc-900/95 backdrop-blur-xl shadow-xl">
               <div class="max-h-[300px] overflow-y-auto">
-                <button v-for="car in uniqueMatchingCars"
-                        :key="car.id"
-                        @click="selectCar(car)"
+                <button v-for="model in matchingModels"
+                        :key="model"
+                        @click="selectModel(model)"
                         class="w-full flex items-center space-x-4 p-4 text-left border-b border-zinc-800 hover:bg-zinc-800/50 transition-all duration-200 last:border-b-0">
                   <CarIcon class="h-5 w-5 text-emerald-500" />
-                  <span class="text-zinc-100">{{ car.carmodel }}</span>
+                  <span class="text-zinc-100">{{ model }}</span>
                 </button>
               </div>
             </div>
           </div>
 
-          <div v-if="selectedCar" class="space-y-6">
+          <div v-if="selectedModel" class="space-y-6">
           <!-- Erreurs -->
           <TransitionGroup
             tag="div"
@@ -241,10 +234,10 @@ onMounted(loadCarsData)
           </TransitionGroup>
 
             <!-- Récapitulatif -->
-            <div v-if="selectedCar" class="p-4 rounded-xl border border-zinc-700 bg-zinc-800/30 backdrop-blur-xl space-y-2">
+            <div v-if="selectedModel" class="p-4 rounded-xl border border-zinc-700 bg-zinc-800/30 backdrop-blur-xl space-y-2">
               <h4 class="text-lg font-medium text-emerald-500">Sélection</h4>
               <div class="space-y-2">
-                <p class="text-zinc-100">{{ selectedCar.carmodel }}</p>
+                <p class="text-zinc-100">{{ selectedModel }}</p>
                 <div class="flex flex-wrap gap-2">
                   <span v-if="selectedColor"
                         class="inline-flex items-center px-3 py-1 rounded-lg bg-zinc-800 text-zinc-300 text-sm">
@@ -274,8 +267,8 @@ onMounted(loadCarsData)
               </div>
             </div>
 
-            <!-- Kilométrage et puissance (visible si nombre de portes sélectionné) -->
-            <div v-if="searchQuery" class="space-y-2">
+            <!-- Kilométrage, puissance et année (visible si nombre de portes sélectionné) -->
+            <div v-if="selectedModel" class="space-y-2">
               <div class="flex gap-3">
                 <div class="flex-[2] relative">
                   <input v-model="mileage"
@@ -295,6 +288,15 @@ onMounted(loadCarsData)
                         class="w-full h-12 px-4 rounded-xl bg-zinc-800/50 border border-zinc-700 text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500"
                         placeholder="CV Fiscaux">
                   <span class="absolute right-4 top-3 text-zinc-500">CV</span>
+                </div>
+
+                <div class="flex-1 relative">
+                  <input v-model="year"
+                        type="number"
+                        min="1900"
+                        :max="new Date().getFullYear()"
+                        class="w-full h-12 px-4 rounded-xl bg-zinc-800/50 border border-zinc-700 text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500"
+                        placeholder="Année">
                 </div>
               </div>
             </div>
@@ -331,7 +333,7 @@ onMounted(loadCarsData)
           </div>
 
           <!-- Couleur (visible si voiture sélectionnée) -->
-          <div v-if="selectedCar" class="space-y-2">
+          <div v-if="selectedModel" class="space-y-2">
             <h4 class="text-sm font-medium text-zinc-400">Couleur</h4>
             <div class="flex flex-wrap gap-3">
               <button v-for="color in colorList"
