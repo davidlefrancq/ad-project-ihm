@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
-import { CarIcon, SearchIcon, CheckIcon } from 'lucide-vue-next'
+import { CarIcon, SearchIcon } from 'lucide-vue-next'
 import CarFormStepper from './CarFormStepper.vue'
 import CarColorPicker from './CarColorPicker.vue'
 
@@ -293,7 +293,7 @@ onMounted(() => {
 
             <!-- Bouton estimer -->
             <button @click="estimatePrice"
-                    :disabled="!mileage || !horsepower || !selectedDoors || !selectedTransmission || !selectedEnergy || !selectedColor || !year"
+                    :disabled="!mileage || !horsepower || !selectedDoors || selectedTransmission===null || !selectedEnergy || !selectedColor || !year"
                     class="w-full px-4 py-3 rounded-xl text-white font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                     :class="isEstimating ? 'bg-zinc-600' : 'bg-emerald-500 hover:bg-emerald-600'">
               <span v-if="isEstimating" class="flex items-center justify-center gap-2">
