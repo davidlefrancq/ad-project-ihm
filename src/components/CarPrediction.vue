@@ -320,16 +320,17 @@ onMounted(() => {
 
             <!-- Résultat estimation -->
             <div v-if="showEstimation"
-                class="p-6 rounded-xl border border-emerald-500 bg-emerald-500/10 space-y-4"
+                class="p-6 rounded-xl border border-emerald-500 bg-emerald-500/10"
                 :class="{'animate-fade-in': showEstimation}">
-              <h4 class="text-lg font-medium text-emerald-500">Estimation</h4>
-              <div class="text-center">
-                <span class="text-3xl font-bold text-white">
-                  {{ estimatedPrice?.toLocaleString() }} €
-                </span>
+              <div class="flex items-center relative">
+                <h4 class="text-lg font-medium text-emerald-500 absolute left-0">Estimation</h4>
+                <div class="flex-1 text-center">
+                  <span class="text-3xl font-bold text-white">
+                    {{ estimatedPrice?.toLocaleString() }} €
+                  </span>
+                </div>
               </div>
             </div>
-
           </div>
 
           <!-- Couleur (visible si voiture sélectionnée) -->
