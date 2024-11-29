@@ -33,7 +33,7 @@ const colorList = [
 const energyList = [
   { name: 'gpl', icon: '🔄' },
   { name: 'hybride', icon: '⚡️' },
-  { name: 'hydrogène', icon: '💧' },
+  // { name: 'hydrogène', icon: '💧' },
   { name: 'bioéthanol', icon: '🌱' },
   { name: 'electrique', icon: '⚡️' },
   { name: 'essence', icon: '⛽️' },
@@ -303,7 +303,7 @@ onMounted(() => {
 
             <!-- Bouton estimer -->
             <button @click="estimatePrice"
-                    :disabled="!mileage || !horsepower || !selectedDoors || !selectedFirstHand || !selectedTransmission || !selectedEnergy || !selectedColor"
+                    :disabled="!mileage || !horsepower || !selectedDoors || !selectedTransmission || !selectedEnergy || !selectedColor"
                     class="w-full px-4 py-3 rounded-xl text-white font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                     :class="isEstimating ? 'bg-zinc-600' : 'bg-emerald-500 hover:bg-emerald-600'">
               <span v-if="isEstimating" class="flex items-center justify-center gap-2">
