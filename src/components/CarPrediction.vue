@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { CarIcon, SearchIcon, CheckIcon } from 'lucide-vue-next'
+import CarFormStepper from './CarFormStepper.vue'
 
 const API_URL = `${import.meta.env.VITE_API_URL}/predict`
 
@@ -303,7 +304,7 @@ onMounted(() => {
 
             <!-- Bouton estimer -->
             <button @click="estimatePrice"
-                    :disabled="!mileage || !horsepower || !selectedDoors || !selectedTransmission || !selectedEnergy || !selectedColor"
+                    :disabled="!mileage || !horsepower || !selectedDoors || !selectedTransmission || !selectedEnergy || !selectedColor || !year"
                     class="w-full px-4 py-3 rounded-xl text-white font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                     :class="isEstimating ? 'bg-zinc-600' : 'bg-emerald-500 hover:bg-emerald-600'">
               <span v-if="isEstimating" class="flex items-center justify-center gap-2">
@@ -333,113 +334,127 @@ onMounted(() => {
             </div>
           </div>
 
-          <!-- Couleur (visible si voiture sélectionnée) -->
-          <div v-if="selectedModel" class="space-y-2">
-            <h4 class="text-sm font-medium text-zinc-400">Couleur</h4>
-            <div class="flex flex-wrap gap-3">
-              <button v-for="color in colorList"
-                      :key="color.name"
-                      @click="selectColor(color.name)"
-                      :title="color.name"
-                      class="relative w-8 h-8 rounded-full border-2 transition-all duration-200 hover:scale-110 focus:outline-none"
-                      :class="selectedColor === color.name ? 'border-emerald-500 scale-110' : 'border-zinc-600'"
-                      :style="{ backgroundColor: color.hex }">
-                <CheckIcon v-if="selectedColor === color.name"
-                          class="absolute inset-0 m-auto w-5 h-5"
-                          :class="color.name === 'blanc' ? 'text-black' : 'text-white'" />
-              </button>
+          <div v-if="selectedModel" class="space-y-8">
+          <CarFormStepper v-if="selectedModel">
+            <!-- Couleur (visible si voiture sélectionnée) -->
+            <template #color>
+            <div class="space-y-2">
+              <!-- <h4 class="text-sm font-medium text-zinc-400">Couleur</h4> -->
+              <div class="flex flex-wrap gap-3">
+                <button v-for="color in colorList"
+                        :key="color.name"
+                        @click="selectColor(color.name)"
+                        :title="color.name"
+                        class="relative w-8 h-8 rounded-full border-2 transition-all duration-200 hover:scale-110 focus:outline-none"
+                        :class="selectedColor === color.name ? 'border-emerald-500 scale-110' : 'border-zinc-600'"
+                        :style="{ backgroundColor: color.hex }">
+                  <CheckIcon v-if="selectedColor === color.name"
+                            class="absolute inset-0 m-auto w-5 h-5"
+                            :class="color.name === 'blanc' ? 'text-black' : 'text-white'" />
+                </button>
+              </div>
             </div>
-          </div>
+            </template>
 
-          <!-- Carburant (visible si couleur sélectionnée) -->
-          <div v-if="selectedColor" class="space-y-2">
-            <h4 class="text-sm font-medium text-zinc-400">Type de carburant</h4>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <button v-for="energy in energyList"
-                      :key="energy.name"
-                      @click="selectEnergy(energy.name)"
-                      class="px-2 py-2 rounded-xl border text-sm text-left transition-all duration-200 hover:scale-[1.02] focus:outline-none"
-                      :class="selectedEnergy === energy.name
-                        ? 'border-emerald-500 bg-emerald-500/10 text-emerald-500'
-                        : 'border-zinc-700 hover:border-zinc-600 text-zinc-300'">
-                <span class="flex items-center gap-2">
-                  <span class="text-lg">{{ energy.icon }}</span>
-                  <span class="capitalize">{{ energy.name }}</span>
-                </span>
-              </button>
+            <!-- Carburant (visible si couleur sélectionnée) -->
+            <template #energy>
+            <div class="space-y-2">
+              <!-- <h4 class="text-sm font-medium text-zinc-400">Type de carburant</h4> -->
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <button v-for="energy in energyList"
+                        :key="energy.name"
+                        @click="selectEnergy(energy.name)"
+                        class="px-2 py-2 rounded-xl border text-sm text-left transition-all duration-200 hover:scale-[1.02] focus:outline-none"
+                        :class="selectedEnergy === energy.name
+                          ? 'border-emerald-500 bg-emerald-500/10 text-emerald-500'
+                          : 'border-zinc-700 hover:border-zinc-600 text-zinc-300'">
+                  <span class="flex items-center gap-2">
+                    <span class="text-lg">{{ energy.icon }}</span>
+                    <span class="capitalize">{{ energy.name }}</span>
+                  </span>
+                </button>
+              </div>
             </div>
-          </div>
+            </template>
 
-          <!-- Boîte (visible si carburant sélectionné) -->
-          <div v-if="selectedEnergy" class="space-y-2">
-            <h4 class="text-sm font-medium text-zinc-400">Type de boîte</h4>
-            <div class="flex gap-3">
-              <button @click="selectedTransmission = true"
-                      class="flex-1 px-2 py-2 rounded-xl border transition-all duration-200 hover:scale-[1.02] focus:outline-none"
-                      :class="selectedTransmission === true
-                        ? 'border-emerald-500 bg-emerald-500/10 text-emerald-500'
-                        : 'border-zinc-700 hover:border-zinc-600 text-zinc-300'">
-                <span class="flex items-center justify-center gap-2">
-                  <span>🔧</span>
-                  <span>Manuelle</span>
-                </span>
-              </button>
-              <button @click="selectedTransmission = false"
-                      class="flex-1 px-2 py-2 rounded-xl border transition-all duration-200 hover:scale-[1.02] focus:outline-none"
-                      :class="selectedTransmission === false
-                        ? 'border-emerald-500 bg-emerald-500/10 text-emerald-500'
-                        : 'border-zinc-700 hover:border-zinc-600 text-zinc-300'">
-                <span class="flex items-center justify-center gap-2">
-                  <span>⚙️</span>
-                  <span>Automatique</span>
-                </span>
-              </button>
+            <!-- Boîte (visible si carburant sélectionné) -->
+            <template #transmission>
+            <div class="space-y-2">
+              <!-- <h4 class="text-sm font-medium text-zinc-400">Type de boîte</h4> -->
+              <div class="flex gap-3">
+                <button @click="selectedTransmission = true"
+                        class="flex-1 px-2 py-2 rounded-xl border transition-all duration-200 hover:scale-[1.02] focus:outline-none"
+                        :class="selectedTransmission === true
+                          ? 'border-emerald-500 bg-emerald-500/10 text-emerald-500'
+                          : 'border-zinc-700 hover:border-zinc-600 text-zinc-300'">
+                  <span class="flex items-center justify-center gap-2">
+                    <span>🔧</span>
+                    <span>Manuelle</span>
+                  </span>
+                </button>
+                <button @click="selectedTransmission = false"
+                        class="flex-1 px-2 py-2 rounded-xl border transition-all duration-200 hover:scale-[1.02] focus:outline-none"
+                        :class="selectedTransmission === false
+                          ? 'border-emerald-500 bg-emerald-500/10 text-emerald-500'
+                          : 'border-zinc-700 hover:border-zinc-600 text-zinc-300'">
+                  <span class="flex items-center justify-center gap-2">
+                    <span>⚙️</span>
+                    <span>Automatique</span>
+                  </span>
+                </button>
+              </div>
             </div>
-          </div>
+            </template>
 
-          <!-- Première main (visible si boîte sélectionnée) -->
-          <div v-if="selectedTransmission !== null" class="space-y-2">
-            <h4 class="text-sm font-medium text-zinc-400">État du véhicule</h4>
-            <div class="flex gap-3">
-              <button @click="selectedFirstHand = true"
-                      class="flex-1 px-2 py-2 rounded-xl border transition-all duration-200 hover:scale-[1.02] focus:outline-none"
-                      :class="selectedFirstHand === true
-                        ? 'border-emerald-500 bg-emerald-500/10 text-emerald-500'
-                        : 'border-zinc-700 hover:border-zinc-600 text-zinc-300'">
-                <span class="flex items-center justify-center gap-2">
-                  <span>🆕</span>
-                  <span>Première main</span>
-                </span>
-              </button>
-              <button @click="selectedFirstHand = false"
-                      class="flex-1 px-2 py-2 rounded-xl border transition-all duration-200 hover:scale-[1.02] focus:outline-none"
-                      :class="selectedFirstHand === false
-                        ? 'border-emerald-500 bg-emerald-500/10 text-emerald-500'
-                        : 'border-zinc-700 hover:border-zinc-600 text-zinc-300'">
-                <span class="flex items-center justify-center gap-2">
-                  <span>🔄</span>
-                  <span>Occasion</span>
-                </span>
-              </button>
+            <!-- Première main (visible si boîte sélectionnée) -->
+            <template #firstHand>
+            <div class="space-y-2">
+              <!-- <h4 class="text-sm font-medium text-zinc-400">État du véhicule</h4> -->
+              <div class="flex gap-3">
+                <button @click="selectedFirstHand = true"
+                        class="flex-1 px-2 py-2 rounded-xl border transition-all duration-200 hover:scale-[1.02] focus:outline-none"
+                        :class="selectedFirstHand === true
+                          ? 'border-emerald-500 bg-emerald-500/10 text-emerald-500'
+                          : 'border-zinc-700 hover:border-zinc-600 text-zinc-300'">
+                  <span class="flex items-center justify-center gap-2">
+                    <span>🆕</span>
+                    <span>Première main</span>
+                  </span>
+                </button>
+                <button @click="selectedFirstHand = false"
+                        class="flex-1 px-2 py-2 rounded-xl border transition-all duration-200 hover:scale-[1.02] focus:outline-none"
+                        :class="selectedFirstHand === false
+                          ? 'border-emerald-500 bg-emerald-500/10 text-emerald-500'
+                          : 'border-zinc-700 hover:border-zinc-600 text-zinc-300'">
+                  <span class="flex items-center justify-center gap-2">
+                    <span>🔄</span>
+                    <span>Occasion</span>
+                  </span>
+                </button>
+              </div>
             </div>
-          </div>
+            </template>
 
-          <!-- Nombre de portes (visible si première main sélectionnée) -->
-          <div v-if="selectedFirstHand !== null" class="space-y-2">
-            <h4 class="text-sm font-medium text-zinc-400">Nombre de portes</h4>
-            <div class="flex gap-3">
-              <button v-for="doors in doorOptions"
-                      :key="doors"
-                      @click="selectedDoors = doors === selectedDoors ? null : doors"
-                      class="flex-1 px-2 py-2 rounded-xl border transition-all duration-200 hover:scale-[1.02] focus:outline-none"
-                      :class="selectedDoors === doors
-                        ? 'border-emerald-500 bg-emerald-500/10 text-emerald-500'
-                        : 'border-zinc-700 hover:border-zinc-600 text-zinc-300'">
-                <span class="flex items-center justify-center gap-2">
-                  <span>{{ doors }}</span>
-                </span>
-              </button>
+            <!-- Nombre de portes (visible si première main sélectionnée) -->
+            <template #doors>
+            <div class="space-y-2">
+              <!-- <h4 class="text-sm font-medium text-zinc-400">Nombre de portes</h4> -->
+              <div class="flex gap-3">
+                <button v-for="doors in doorOptions"
+                        :key="doors"
+                        @click="selectedDoors = doors === selectedDoors ? null : doors"
+                        class="flex-1 px-2 py-2 rounded-xl border transition-all duration-200 hover:scale-[1.02] focus:outline-none"
+                        :class="selectedDoors === doors
+                          ? 'border-emerald-500 bg-emerald-500/10 text-emerald-500'
+                          : 'border-zinc-700 hover:border-zinc-600 text-zinc-300'">
+                  <span class="flex items-center justify-center gap-2">
+                    <span>{{ doors }}</span>
+                  </span>
+                </button>
+              </div>
             </div>
+            </template>
+          </CarFormStepper>
           </div>
 
         </div>
