@@ -316,7 +316,7 @@ onMounted(() => {
                 <h4 class="text-lg font-medium text-emerald-500 absolute left-0">Estimation</h4>
                 <div class="flex-1 text-center">
                   <span class="text-3xl font-bold text-white">
-                    {{ estimatedPrice?.toLocaleString() }} €
+                    {{ estimatedPrice ? Math.round(estimatedPrice)?.toLocaleString() : 0 }} €
                   </span>
                 </div>
               </div>
