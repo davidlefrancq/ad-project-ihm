@@ -7,8 +7,8 @@ const currentStep = ref(0)
 
 const steps = [
   { title: 'Couleur', icon: '🎨', key: 'color' },
-  { title: 'Type de carburant', icon: '⛽', key: 'energy' },
-  { title: 'Type de boîte', icon: '⚙️', key: 'transmission' },
+  { title: 'Carburant', icon: '⛽', key: 'energy' },
+  { title: 'Boîte de vitesses', icon: '⚙️', key: 'transmission' },
   { title: 'État du véhicule', icon: '🚗', key: 'firstHand' },
   { title: 'Nombre de portes', icon: '🚪', key: 'doors' }
 ]
@@ -40,7 +40,7 @@ watch(currentStep, (newStep) => {
 </script>
 
 <template>
-  <div class="w-full space-y-6">
+  <div class="w-full space-y-5">
     <!-- Progress bar -->
     <div class="flex items-center justify-between mb-4">
       <template v-for="(step, index) in steps" :key="step.title">
@@ -91,7 +91,7 @@ watch(currentStep, (newStep) => {
     </div>
 
     <!-- Content -->
-    <div class="relative min-h-[200px]">
+    <div class="relative min-h-[120px]">
       <TransitionGroup
         name="slide"
         tag="div"
@@ -108,9 +108,11 @@ watch(currentStep, (newStep) => {
 </template>
 
 <style scoped>
-.slide-enter-active,
-.slide-leave-active {
+.slide-enter-active {
   transition: all 0.3s ease-out;
+}
+.slide-leave-active {
+  transition: all 0s ease-out;
 }
 
 .slide-enter-from {

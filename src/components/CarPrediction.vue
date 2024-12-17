@@ -67,6 +67,24 @@ const removeError = (id: number) => {
   errors.value = errors.value.filter(error => error.id !== id)
 }
 
+const clearData = () => {
+  modelSearch.value = ''
+  selectedModel.value = null
+  selectedColor.value = ''
+  selectedEnergy.value = ''
+  selectedTransmission.value = null
+  selectedFirstHand.value = null
+  selectedDoors.value = null
+  mileage.value = ''
+  year.value = ''
+  horsepower.value = ''
+  isMetallicColor.value = false
+  estimatedPrice.value = null
+  showEstimation.value = false
+  errors.value = []
+  nextErrorId = 0
+}
+
 const estimatePrice = async () => {
   isEstimating.value = true
   showEstimation.value = false
@@ -290,23 +308,115 @@ onMounted(() => {
                 </div>
               </div>
             </div>
+          </div>
 
-            <!-- Bouton estimer -->
-            <button @click="estimatePrice"
-                    :disabled="!mileage || !horsepower || !selectedDoors || selectedTransmission===null || !selectedEnergy || !selectedColor || !year"
-                    class="w-full px-4 py-3 rounded-xl text-white font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                    :class="isEstimating ? 'bg-zinc-600' : 'bg-emerald-500 hover:bg-emerald-600'">
-              <span v-if="isEstimating" class="flex items-center justify-center gap-2">
-                <svg class="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"/>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
-                </svg>
-                Estimation en cours...
-              </span>
-              <span v-else>
-                Estimer le prix
-              </span>
-            </button>
+          <div v-if="selectedModel" class="space-y-8">
+            <CarFormStepper v-if="selectedModel">
+              <!-- Couleur et option métallisé -->
+              <template #color>
+                <CarColorPicker
+                  v-model="isMetallicColor"
+                  :color-list="colorList"
+                  :selected-color="selectedColor"
+                  @select:color="selectColor"
+                />
+              </template>
+
+              <!-- Carburant (visible si couleur sélectionnée) -->
+              <template #energy>
+                <div class="space-y-2">
+                  <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <button v-for="energy in energyList"
+                            :key="energy.name"
+                            @click="selectEnergy(energy.name)"
+                            class="px-2 py-2 rounded-xl border text-sm text-left transition-all duration-200 hover:scale-[1.02] focus:outline-none"
+                            :class="selectedEnergy === energy.name
+                              ? 'border-emerald-500 bg-emerald-500/10 text-emerald-500'
+                              : 'border-zinc-700 hover:border-zinc-600 text-zinc-300'">
+                      <span class="flex items-center gap-2">
+                        <span class="text-lg">{{ energy.icon }}</span>
+                        <span class="capitalize">{{ energy.name }}</span>
+                      </span>
+                    </button>
+                  </div>
+                </div>
+              </template>
+
+              <!-- Boîte (visible si carburant sélectionné) -->
+              <template #transmission>
+                <div class="space-y-2">
+                  <div class="flex gap-3">
+                    <button @click="selectedTransmission = true"
+                            class="flex-1 px-2 py-2 rounded-xl border transition-all duration-200 hover:scale-[1.02] focus:outline-none"
+                            :class="selectedTransmission === true
+                              ? 'border-emerald-500 bg-emerald-500/10 text-emerald-500'
+                              : 'border-zinc-700 hover:border-zinc-600 text-zinc-300'">
+                      <span class="flex items-center justify-center gap-2">
+                        <span>🔧</span>
+                        <span>Manuelle</span>
+                      </span>
+                    </button>
+                    <button @click="selectedTransmission = false"
+                            class="flex-1 px-2 py-2 rounded-xl border transition-all duration-200 hover:scale-[1.02] focus:outline-none"
+                            :class="selectedTransmission === false
+                              ? 'border-emerald-500 bg-emerald-500/10 text-emerald-500'
+                              : 'border-zinc-700 hover:border-zinc-600 text-zinc-300'">
+                      <span class="flex items-center justify-center gap-2">
+                        <span>⚙️</span>
+                        <span>Automatique</span>
+                      </span>
+                    </button>
+                  </div>
+                </div>
+              </template>
+
+              <!-- Première main -->
+              <template #firstHand>
+              <div class="space-y-2">
+                <div class="flex gap-3">
+                  <button @click="selectedFirstHand = true"
+                          class="flex-1 px-2 py-2 rounded-xl border transition-all duration-200 hover:scale-[1.02] focus:outline-none"
+                          :class="selectedFirstHand === true
+                            ? 'border-emerald-500 bg-emerald-500/10 text-emerald-500'
+                            : 'border-zinc-700 hover:border-zinc-600 text-zinc-300'">
+                    <span class="flex items-center justify-center gap-2">
+                      <span>🆕</span>
+                      <span>Première main</span>
+                    </span>
+                  </button>
+                  <button @click="selectedFirstHand = false"
+                          class="flex-1 px-2 py-2 rounded-xl border transition-all duration-200 hover:scale-[1.02] focus:outline-none"
+                          :class="selectedFirstHand === false
+                            ? 'border-emerald-500 bg-emerald-500/10 text-emerald-500'
+                            : 'border-zinc-700 hover:border-zinc-600 text-zinc-300'">
+                    <span class="flex items-center justify-center gap-2">
+                      <span>🔄</span>
+                      <span>Occasion</span>
+                    </span>
+                  </button>
+                </div>
+              </div>
+              </template>
+
+              <!-- Nombre de portes -->
+              <template #doors>
+              <div class="space-y-2">
+                <div class="flex gap-3">
+                  <button v-for="doors in doorOptions"
+                          :key="doors"
+                          @click="selectedDoors = doors === selectedDoors ? null : doors"
+                          class="flex-1 px-2 py-2 rounded-xl border transition-all duration-200 hover:scale-[1.02] focus:outline-none"
+                          :class="selectedDoors === doors
+                            ? 'border-emerald-500 bg-emerald-500/10 text-emerald-500'
+                            : 'border-zinc-700 hover:border-zinc-600 text-zinc-300'">
+                    <span class="flex items-center justify-center gap-2">
+                      <span>{{ doors }}</span>
+                    </span>
+                  </button>
+                </div>
+              </div>
+              </template>
+            </CarFormStepper>
 
             <!-- Résultat estimation -->
             <div v-if="showEstimation"
@@ -321,117 +431,32 @@ onMounted(() => {
                 </div>
               </div>
             </div>
+
+            <!-- Bouton estimer -->
+            <button @click="estimatePrice"
+                    :disabled="!mileage || !horsepower || !selectedDoors || selectedTransmission===null || !selectedEnergy || !selectedColor || !year"
+                    class="w-full px-4 py-3 rounded-xl text-white font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    :class="isEstimating ? 'bg-zinc-600' : 'bg-emerald-500 hover:bg-emerald-600'">
+                <span v-if="isEstimating" class="flex items-center justify-center gap-2">
+                  <svg class="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"/>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+                  </svg>
+                  Estimation en cours...
+                </span>
+                <span v-else>
+                  Estimer le prix
+                </span>
+            </button>
+
+            <!-- Clear data button aligned end-end -->
+            <div class="flex justify-center">
+              <button @click="clearData"
+                class="text-emerald-500 hover:text-emerald-600 focus:outline-none">
+                Reset
+              </button>
+            </div>
           </div>
-
-          <div v-if="selectedModel" class="space-y-8">
-          <CarFormStepper v-if="selectedModel">
-            <!-- Couleur et option métallisé -->
-            <template #color>
-              <CarColorPicker
-                v-model="isMetallicColor"
-                :color-list="colorList"
-                :selected-color="selectedColor"
-                @select:color="selectColor"
-              />
-            </template>
-
-            <!-- Carburant (visible si couleur sélectionnée) -->
-            <template #energy>
-            <div class="space-y-2">
-              <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                <button v-for="energy in energyList"
-                        :key="energy.name"
-                        @click="selectEnergy(energy.name)"
-                        class="px-2 py-2 rounded-xl border text-sm text-left transition-all duration-200 hover:scale-[1.02] focus:outline-none"
-                        :class="selectedEnergy === energy.name
-                          ? 'border-emerald-500 bg-emerald-500/10 text-emerald-500'
-                          : 'border-zinc-700 hover:border-zinc-600 text-zinc-300'">
-                  <span class="flex items-center gap-2">
-                    <span class="text-lg">{{ energy.icon }}</span>
-                    <span class="capitalize">{{ energy.name }}</span>
-                  </span>
-                </button>
-              </div>
-            </div>
-            </template>
-
-            <!-- Boîte (visible si carburant sélectionné) -->
-            <template #transmission>
-            <div class="space-y-2">
-              <div class="flex gap-3">
-                <button @click="selectedTransmission = true"
-                        class="flex-1 px-2 py-2 rounded-xl border transition-all duration-200 hover:scale-[1.02] focus:outline-none"
-                        :class="selectedTransmission === true
-                          ? 'border-emerald-500 bg-emerald-500/10 text-emerald-500'
-                          : 'border-zinc-700 hover:border-zinc-600 text-zinc-300'">
-                  <span class="flex items-center justify-center gap-2">
-                    <span>🔧</span>
-                    <span>Manuelle</span>
-                  </span>
-                </button>
-                <button @click="selectedTransmission = false"
-                        class="flex-1 px-2 py-2 rounded-xl border transition-all duration-200 hover:scale-[1.02] focus:outline-none"
-                        :class="selectedTransmission === false
-                          ? 'border-emerald-500 bg-emerald-500/10 text-emerald-500'
-                          : 'border-zinc-700 hover:border-zinc-600 text-zinc-300'">
-                  <span class="flex items-center justify-center gap-2">
-                    <span>⚙️</span>
-                    <span>Automatique</span>
-                  </span>
-                </button>
-              </div>
-            </div>
-            </template>
-
-            <!-- Première main (visible si boîte sélectionnée) -->
-            <template #firstHand>
-            <div class="space-y-2">
-              <div class="flex gap-3">
-                <button @click="selectedFirstHand = true"
-                        class="flex-1 px-2 py-2 rounded-xl border transition-all duration-200 hover:scale-[1.02] focus:outline-none"
-                        :class="selectedFirstHand === true
-                          ? 'border-emerald-500 bg-emerald-500/10 text-emerald-500'
-                          : 'border-zinc-700 hover:border-zinc-600 text-zinc-300'">
-                  <span class="flex items-center justify-center gap-2">
-                    <span>🆕</span>
-                    <span>Première main</span>
-                  </span>
-                </button>
-                <button @click="selectedFirstHand = false"
-                        class="flex-1 px-2 py-2 rounded-xl border transition-all duration-200 hover:scale-[1.02] focus:outline-none"
-                        :class="selectedFirstHand === false
-                          ? 'border-emerald-500 bg-emerald-500/10 text-emerald-500'
-                          : 'border-zinc-700 hover:border-zinc-600 text-zinc-300'">
-                  <span class="flex items-center justify-center gap-2">
-                    <span>🔄</span>
-                    <span>Occasion</span>
-                  </span>
-                </button>
-              </div>
-            </div>
-            </template>
-
-            <!-- Nombre de portes (visible si première main sélectionnée) -->
-            <template #doors>
-            <div class="space-y-2">
-              <div class="flex gap-3">
-                <button v-for="doors in doorOptions"
-                        :key="doors"
-                        @click="selectedDoors = doors === selectedDoors ? null : doors"
-                        class="flex-1 px-2 py-2 rounded-xl border transition-all duration-200 hover:scale-[1.02] focus:outline-none"
-                        :class="selectedDoors === doors
-                          ? 'border-emerald-500 bg-emerald-500/10 text-emerald-500'
-                          : 'border-zinc-700 hover:border-zinc-600 text-zinc-300'">
-                  <span class="flex items-center justify-center gap-2">
-                    <span>{{ doors }}</span>
-                  </span>
-                </button>
-              </div>
-            </div>
-            </template>
-          </CarFormStepper>
-          </div>
-
         </div>
       </div>
     </div>
