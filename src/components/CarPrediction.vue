@@ -44,7 +44,7 @@ const selectedModel = ref<string | null>(null)
 const selectedColor = ref('')
 const selectedEnergy = ref('')
 const selectedTransmission = ref<boolean | null>(null)
-const selectedFirstHand = ref<boolean | null>(null)
+const selectedFirstHand = ref<boolean | null>(false)
 const hasSearched = ref(false)
 const selectedDoors = ref<number | null>(null)
 const mileage = ref('')
@@ -185,13 +185,13 @@ onMounted(() => {
           <CarIcon class="w-6 h-6 text-emerald-500" />Estimation de prix
         </h3>
 
-        <div class="space-y-8">
+        <div class="space-y-6">
           <!-- Recherche -->
-          <div class="relative transition-all duration-200 hover:scale-[1.01]">
+          <div v-if="!selectedModel" class="relative transition-all duration-200 hover:scale-[1.01]">
             <SearchIcon class="absolute left-3 top-3 h-5 w-5 text-zinc-500" />
             <input v-model="modelSearch"
                   type="text"
-                  class="w-full h-12 pl-10 pr-4 rounded-xl bg-zinc-800/50 border border-zinc-700 text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all duration-200"
+                  class="uppercase w-full h-12 pl-10 pr-4 rounded-xl bg-zinc-800/50 border border-zinc-700 text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all duration-200"
                   placeholder="Rechercher un modèle..."
                   @input="hasSearched = true">
 
@@ -204,7 +204,7 @@ onMounted(() => {
                         @click="selectModel(model)"
                         class="w-full flex items-center space-x-4 p-4 text-left border-b border-zinc-800 hover:bg-zinc-800/50 transition-all duration-200 last:border-b-0">
                   <CarIcon class="h-5 w-5 text-emerald-500" />
-                  <span class="text-zinc-100">{{ model }}</span>
+                  <span class="uppercase text-zinc-100">{{ model }}</span>
                 </button>
               </div>
             </div>
@@ -244,9 +244,8 @@ onMounted(() => {
 
             <!-- Récapitulatif -->
             <div v-if="selectedModel" class="p-4 rounded-xl border border-zinc-700 bg-zinc-800/30 backdrop-blur-xl space-y-2">
-              <h4 class="text-lg font-medium text-emerald-500">Sélection</h4>
+              <h4 class="uppercase text-lg font-medium text-emerald-500">{{ selectedModel }}</h4>
               <div class="space-y-2">
-                <p class="text-zinc-100">{{ selectedModel }}</p>
                 <div class="flex flex-wrap gap-2">
                   <span v-if="selectedColor"
                         class="inline-flex items-center px-3 py-1 rounded-lg bg-zinc-800 text-zinc-300 text-sm">
@@ -254,6 +253,7 @@ onMounted(() => {
                           :style="{ backgroundColor: colorList.find(c => c.name === selectedColor)?.hex }">
                     </span>
                     <span class="capitalize">{{ selectedColor }}</span>
+                    <span v-if="isMetallicColor" class="lowercase ml-1">métallisé</span>
                   </span>
                   <span v-if="selectedEnergy"
                         class="inline-flex items-center px-3 py-1 rounded-lg bg-zinc-800 text-zinc-300 text-sm">
@@ -264,9 +264,9 @@ onMounted(() => {
                         class="inline-flex items-center px-3 py-1 rounded-lg bg-zinc-800 text-zinc-300 text-sm">
                     {{ selectedTransmission ? '🔧 Manuelle' : '⚙️ Automatique' }}
                   </span>
-                  <span v-if="selectedFirstHand !== null"
+                  <span v-if="selectedFirstHand !== null && selectedFirstHand !== false"
                         class="capitalize inline-flex items-center px-3 py-1 rounded-lg bg-zinc-800 text-zinc-300 text-sm">
-                    {{ selectedFirstHand ? '🆕 1ère main' : '🔄 Occasion' }}
+                    {{ selectedFirstHand ? '🆕 1ère main' : null }}
                   </span>
                   <span v-if="selectedDoors"
                         class="capitalize inline-flex items-center px-3 py-1 rounded-lg bg-zinc-800 text-zinc-300 text-sm">
@@ -311,7 +311,7 @@ onMounted(() => {
             </div>
           </div>
 
-          <div v-if="selectedModel" class="space-y-8">
+          <div v-if="selectedModel && !showEstimation" class="space-y-6">
             <CarFormStepper v-if="selectedModel">
               <!-- Couleur et option métallisé -->
               <template #color>
@@ -375,7 +375,7 @@ onMounted(() => {
               <template #firstHand>
               <div class="space-y-2">
                 <div class="flex gap-3">
-                  <button @click="selectedFirstHand = true"
+                  <button @click="selectedFirstHand = !selectedFirstHand"
                           class="flex-1 px-2 py-2 rounded-xl border transition-all duration-200 hover:scale-[1.02] focus:outline-none"
                           :class="selectedFirstHand === true
                             ? 'border-emerald-500 bg-emerald-500/10 text-emerald-500'
@@ -385,7 +385,7 @@ onMounted(() => {
                       <span>Première main</span>
                     </span>
                   </button>
-                  <button @click="selectedFirstHand = false"
+                  <button @click="selectedFirstHand = !selectedFirstHand"
                           class="flex-1 px-2 py-2 rounded-xl border transition-all duration-200 hover:scale-[1.02] focus:outline-none"
                           :class="selectedFirstHand === false
                             ? 'border-emerald-500 bg-emerald-500/10 text-emerald-500'
@@ -418,6 +418,9 @@ onMounted(() => {
               </div>
               </template>
             </CarFormStepper>
+          </div>
+
+          <div v-if="selectedModel" class="space-y-6">
 
             <!-- Résultat estimation -->
             <div v-if="showEstimation"

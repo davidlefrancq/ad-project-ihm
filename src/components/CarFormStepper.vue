@@ -40,7 +40,7 @@ watch(currentStep, (newStep) => {
 </script>
 
 <template>
-  <div class="w-full space-y-5">
+  <div class="w-full space-y-5 border-2 border-zinc-800 p-3 rounded-lg">
     <!-- Progress bar -->
     <div class="flex items-center justify-between mb-4">
       <template v-for="(step, index) in steps" :key="step.title">
