@@ -3,6 +3,7 @@ import { ref, onMounted, computed } from 'vue'
 import { CarIcon, SearchIcon } from 'lucide-vue-next'
 import CarFormStepper from './CarFormStepper.vue'
 import CarColorPicker from './CarColorPicker.vue'
+import type { IDatasetEncodersValues } from '@/interfaces/IDatasetEncodersValues'
 
 const API_URL = `${import.meta.env.VITE_API_URL}/predict`
 
@@ -153,9 +154,9 @@ const selectModel = (model: string) => {
 const loadModels = async () => {
   try {
     isLoading.value = true
-    const response = await fetch('/models.json')
-    const data = await response.json()
-    carModels.value = data
+    const response = await fetch('/dataset_encoders_values.json')
+    const data = await response.json() as IDatasetEncodersValues
+    carModels.value = data.carmodel
   } catch (e) {
     console.error('Erreur lors du chargement des modèles:', e)
   } finally {
